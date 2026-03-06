@@ -127,12 +127,11 @@ sd_no <- balance$sd_ssm[
 sd_diff <- (mean_gay - mean_no) / sqrt((sd_gay^2 + sd_no^2) / 2)
 
 print(sd_diff)
-Your interpretation:
 
   
 ##Q1.6 (4 points) 
 
-#interpretation: The difference is 0.10. As the treatment groups are balanced at the baseline, the difference suggests that the treatment had some effects on the treatment group. So the conversation with gay canvasser increases support for same-sex marriage.
+#Your interpretation: The difference is 0.10. As the treatment groups are balanced at the baseline, the difference suggests that the treatment had some effects on the treatment group. So the conversation with gay canvasser increases support for same-sex marriage.
 
  # Your code here
 gay_study1_wv2 <- gay |>
@@ -171,7 +170,27 @@ print(sd_w2)
 ```{r}
 
 
+##2.1 The Baseline Distribution Q2.1 (3 points): Load gayreshaped.csv and ccap2012.csv. Report the number of observations and column names for each dataset. In gayreshaped.csv, the variables therm1 through therm4 represent feeling thermometer scores (0–100) toward gay men and lesbians, measured at each survey wave.
+#Answer: the number of observations is 11948 in gay_r, and 43998 in ccap. The column names for gay_r are "study"     "treatment" "therm1"    "therm2"    "therm3"    "therm4" , and the column names for ccap are "caseid"   "gaytherm". 
+# Your code here
+gay_r <- read_csv("data/raw/gayreshaped.csv")
+ccap <- read_csv("data/raw/ccap2012.csv")
 
+nrow(gay_r)
+names(gay_r)
+
+nrow(ccap)
+names(ccap)
+
+##Q2.2 (5 points): Extract the baseline feeling thermometer (therm1) for Study 1 from gayreshaped.csv. Calculate its mean, median, and standard deviation. Then do the same for gaytherm from ccap2012.csv (remove NAs). Report both sets of statistics side by side. What do you notice? (1–2 sentences)
+# Your code here
+#What do you notice?
+
+  
+##Q2.3 (5 points): Create side-by-side histograms comparing the LaCour Study 1 baseline (therm1) and the CCAP data (gaytherm). Use the same bin breaks for both: breaks = seq(0, 100, by = 5). Hint: Combine the two datasets into one data frame with a column indicating the source, then use ggplot() with facet_wrap(). Do these look like they came from different populations? (2–3 sentences)
+# Your code here 
+  
+#Your interpretation:
 
 
 
