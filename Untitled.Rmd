@@ -293,11 +293,146 @@ ggplot(scatter_data,
 
 
 ##Q2.6 (6 points): You’ve now found three irregularities: 1. The baseline distributions match an existing national survey 2. The re-test correlations are implausibly high (Study 1) 3. The within-person changes are implausibly small (Study 1) In 4–5 sentences, explain why these three findings together suggest the data were fabricated rather than collected in a real experiment. Use specific numbers from your analysis. Why would a fabricator produce data with these properties?
-#Your interpretation:
-
-
+#Your interpretation: The baseline thermometer in study1 matches CCAP data in an extremely close way, with the exact shape of CCAP data in the visualization. In addition, the retest correlation in study1 is unrealistically high, and the variation in individual change in study1 is also suspiciously small (SD <2). Together, these patterns suggests that the data in study1 was fabricated. A fabricator would produce a dataset very similar to an existing dataset, with very small random noise and unrealistically perfect correlations with minimal individual variation.
 
 
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r}
+
+
+##3.1 Comparing Baselines Q3.1 (3 points): Filter gayreshaped.csv to Study 2. How many observations? Calculate the mean and SD of therm1 (baseline) for the treatment group and the control group separately.
+# Your code here. There are 2441 observations. The mean and SD are shown below.
+
+study2 <- gay_r |> 
+  filter(study == 2)
+
+nrow(study2)
+
+study2 |>
+  group_by(treatment) |>
+  summarise(
+    mean = mean(therm1, na.rm = TRUE),
+    sd = sd(therm1, na.rm = TRUE)
+  )
+
+
+##Q3.2 (3 points): Create side-by-side histograms of Study 1 baseline (therm1) and Study 2 baseline (therm1), using the same bins as before. How do they compare visually? (2–3 sentences)
+# Your code here
+
+scatter_data <- gay_r |>
+  filter(treatment == "No Contact", study %in% c(1,2))
+
+ggplot(scatter_data,
+       aes(x = therm1, y = therm2)) +
+  geom_point(color = "steelblue", size = 2) +
+  geom_abline(intercept = 0, slope = 1,
+              color = "red", linetype = "dashed") +
+  facet_wrap(~study) +
+  labs(
+    x = "Thermometer Wave 1",
+    y = "Thermometer Wave 2",
+    title = "Retest Thermometer Responses"
+  )
+
+
+#Your interpretation: In study1, the scatterpoints lie perfectly along the line, indicating that therm2 is very identical to therm1. This is suspicious. In study2, the scatterpoints are dispersed around the line, looking like natural variation. So study2 has a pattern that looks more consistent and could be trusted.
+
+
+
+
+##Q3.3 (3 points): Filter gayreshaped.csv to Study 2, keeping only the “Same-Sex Marriage Script by Gay Canvasser” and “No Contact” groups. Check balance at baseline: calculate the mean and SD of therm1 for each group and the standardized difference in means (same formula as Q1.5). Do the groups look balanced? (1–2 sentences)
+# Your code here
+
+study2_balance <- gay_r |>
+  filter(study == 2,
+         treatment %in% c("Same-Sex Marriage Script by Gay Canvasser",
+                          "No Contact"))
+
+study2_balance |>
+  group_by(treatment) |>
+  summarise(
+    mean_therm1 = mean(therm1, na.rm = TRUE),
+    sd_therm1 = sd(therm1, na.rm = TRUE)
+  )
+
+mean_gay <- mean(study2_balance$therm1[study2_balance$treatment ==
+"Same-Sex Marriage Script by Gay Canvasser"], na.rm = TRUE)
+
+mean_no <- mean(study2_balance$therm1[study2_balance$treatment ==
+"No Contact"], na.rm = TRUE)
+
+sd_gay <- sd(study2_balance$therm1[study2_balance$treatment ==
+"Same-Sex Marriage Script by Gay Canvasser"], na.rm = TRUE)
+
+sd_no <- sd(study2_balance$therm1[study2_balance$treatment ==
+"No Contact"], na.rm = TRUE)
+
+sd_diff <- (mean_gay - mean_no) / sqrt((sd_gay^2 + sd_no^2)/2)
+
+sd_diff
+#Your interpretation: The groups look balanced, because the mean and SD between therm1 and therm2 are almost the same and the standardized difference is only 0.05.
+
+
+
+##Q3.4 (3 points): Now compare outcomes. Calculate the mean therm2 (post-conversation) for each group. What is the difference in post-period means (gay canvasser minus no contact)?
+# Your code here
+study2_balance |>
+  group_by(treatment) |>
+  summarise(mean_therm2 = mean(therm2, na.rm = TRUE))
+
+mean_gay_study2 <- mean(study2_balance$therm2[
+  study2_balance$treatment == "Same-Sex Marriage Script by Gay Canvasser"
+], na.rm = TRUE)
+
+mean_no2 <- mean(study2_balance$therm2[
+  study2_balance$treatment == "No Contact"
+], na.rm = TRUE)
+
+mean_gay_study2 - mean_no2
+
+
+
+##Q3.5 (4 points): Calculate the standard error of the difference in post-period means from Q3.4.Does the CI include zero? What does this tell you about whether the groups differ after the conversations?
+# Your code here
+
+var_gay <- var(study2_balance$therm2[
+  study2_balance$treatment == "Same-Sex Marriage Script by Gay Canvasser"
+], na.rm = TRUE)
+
+var_no <- var(study2_balance$therm2[
+  study2_balance$treatment == "No Contact"
+], na.rm = TRUE)
+
+n_gay <- sum(study2_balance$treatment ==
+"Same-Sex Marriage Script by Gay Canvasser")
+
+n_no <- sum(study2_balance$treatment ==
+"No Contact")
+
+SE <- sqrt(var_gay/n_gay + var_no/n_no)
+
+SE
+
+diff <- mean_gay_study2 - mean_no2
+
+lower <- diff - 1.96 * SE
+upper <- diff + 1.96 * SE
+
+lower
+upper
+#Your interpretation:The 95% CI does not include zero, which means that the groups significantly differ after conversation.
+
+
+
+##Q3.6 (4 points): For the Study 2 control group, calculate the correlation between therm1 and each subsequent wave: therm2, therm3, and therm4. Use cor() with use = "complete.obs". Do the correlations decay over time (i.e., do more distant waves correlate less with baseline)? What does this pattern tell you about the stability of real survey measurements? (2–3 sentences)
+# Your code here
+#Your interpretation:
+
+
+##Q3.7 (5 points): You’ve now analyzed fabricated data (Study 1), caught the fraud, and examined more realistic data (Study 2). In 5–6 sentences, discuss: • What makes Study 2’s data different from Study 1’s data? Be specific about which statistics differ and by how much.• Why is it important that real treatment effects are smaller and messier than fabricated ones? • What role did simple measurement tools (mean, SD, histograms, correlations) play in detecting the fraud? 
+#Your reflection:
+
+
+```
+
