@@ -209,7 +209,90 @@ ccap_therm
   
 ##Q2.3 (5 points): Create side-by-side histograms comparing the LaCour Study 1 baseline (therm1) and the CCAP data (gaytherm). Use the same bin breaks for both: breaks = seq(0, 100, by = 5). Hint: Combine the two datasets into one data frame with a column indicating the source, then use ggplot() with facet_wrap(). Do these look like they came from different populations? (2–3 sentences)
 # Your code here 
+
+lacour <- gay_r |>
+  filter(study == 1) |>
+  select(value = therm1) |>
+  mutate(source = "LaCour Study")
+
+ccap_data <- ccap |>
+  select(value = gaytherm) |>
+  mutate(source = "CCAP")
+
+combined <- bind_rows(lacour, ccap_data)
+
+ggplot(combined, aes(x = value)) +
+  geom_histogram(breaks = seq(0, 100, by = 5)) +
+  facet_wrap(~source) +
+  labs(
+    x = "Feeling Thermometer",
+    y = "Count",
+    title = "Comparison of LaCour Study and CCAP Thermometer Distributions"
+  )
   
+#Your interpretation: The shape of LaCour Study and CCAP data is exactly the same in human eyes. This is the visualization of fraud evidence.They do not look like coming from different population at all. 
+
+##Q2.4 (6 points): For both the Study 1 and Study 2 control groups (“No Contact”), calculate: (a) The correlation between therm1 and therm2 (use cor() with use = "complete.obs") (b) The standard deviation of the within-person change (therm2 - therm1) Present your results side by side. A re-test correlation of 0.95–0.97 is typical for real feeling thermometer data. Which study shows a more plausible pattern, and why? (3–4 sentences)
+# Your code here
+
+study1_control <- gay_r |>
+  filter(study == 1, treatment == "No Contact")
+
+cor_study1 <- cor(
+  study1_control$therm1,
+  study1_control$therm2,
+  use = "complete.obs"
+)
+
+sd_change_study1 <- sd(
+  study1_control$therm2 - study1_control$therm1,
+  na.rm = TRUE
+)
+
+cor_study1
+sd_change_study1
+
+study2_control <- gay_r |>
+  filter(study == 2, treatment == "No Contact")
+
+cor_study2 <- cor(
+  study2_control$therm1,
+  study2_control$therm2,
+  use = "complete.obs"
+)
+
+sd_change_study2 <- sd(
+  study2_control$therm2 - study2_control$therm1,
+  na.rm = TRUE
+)
+
+cor_study2
+sd_change_study2
+#Your interpretation: the retest correlation in LaCour's study1 is almost 1.00, but the correlation in study2 is 0.97. Plus, the SD in individual change is greater in study2 than that in study1, while that in study1 is extremely small. In other words, the variations in retest and individual changes in study1 are too tiny. The data in study1 seems too perfect to be true, while data from study2 looks more natural. 
+
+
+##Q2.5 (5 points): Create two scatter plots side by side: (a) Study 1 control group: therm1 (x-axis) vs therm2 (y-axis), with a 45-degree line (b) Study 2 control group: therm1 (x-axis) vs therm2 (y-axis), with a 45-degree line Describe the differences. Which looks more like real longitudinal data, and why? (3–4 sentences)
+# Your code here: 
+
+scatter_data <- gay_r |>
+  filter(treatment == "No Contact", study %in% c(1,2))
+
+ggplot(scatter_data,
+       aes(x = therm1, y = therm2)) +
+  geom_point(color = "steelblue", size = 2) +
+  geom_abline(intercept = 0, slope = 1,
+              color = "red", linetype = "dashed") +
+  facet_wrap(~study) +
+  labs(
+    x = "Thermometer Wave 1",
+    y = "Thermometer Wave 2",
+    title = "Retest Thermometer Responses"
+  )
+#Your interpretation:Study2 looks more like real longitudinal data. There is almost no deviation of points in study1, and most points stack at the same typical numbers, such as 0, 50, 100. This is unrealistically clean. In study2, the points are scattered around the line but following the overall direction, which makes it seem like real data with noise. 
+
+
+
+##Q2.6 (6 points): You’ve now found three irregularities: 1. The baseline distributions match an existing national survey 2. The re-test correlations are implausibly high (Study 1) 3. The within-person changes are implausibly small (Study 1) In 4–5 sentences, explain why these three findings together suggest the data were fabricated rather than collected in a real experiment. Use specific numbers from your analysis. Why would a fabricator produce data with these properties?
 #Your interpretation:
 
 
