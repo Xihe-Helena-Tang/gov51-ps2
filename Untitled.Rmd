@@ -184,7 +184,27 @@ names(ccap)
 
 ##Q2.2 (5 points): Extract the baseline feeling thermometer (therm1) for Study 1 from gayreshaped.csv. Calculate its mean, median, and standard deviation. Then do the same for gaytherm from ccap2012.csv (remove NAs). Report both sets of statistics side by side. What do you notice? (1–2 sentences)
 # Your code here
-#What do you notice?
+
+
+study1_therm <- gay_r |>
+  filter(study == 1)|>
+  summarise(
+    mean = mean(therm1, na.rm = TRUE), 
+    median = median(therm1, na.rm = TRUE),
+    sd = sd(therm1, na.rm = TRUE)
+  )
+
+study1_therm
+
+ccap_therm <- ccap |>
+  summarise(
+    mean = mean(gaytherm, na.rm = TRUE),
+    median = median(gaytherm, na.rm = TRUE),
+    sd = sd(gaytherm, na.rm = TRUE)
+  )
+
+ccap_therm
+#What do you notice? The mean, median, and SD between study1 and ccap data is extremely similar, although these are two completely separate independent dataset. This suggests that study1 is suspicious of copying the data from CCAP.
 
   
 ##Q2.3 (5 points): Create side-by-side histograms comparing the LaCour Study 1 baseline (therm1) and the CCAP data (gaytherm). Use the same bin breaks for both: breaks = seq(0, 100, by = 5). Hint: Combine the two datasets into one data frame with a column indicating the source, then use ggplot() with facet_wrap(). Do these look like they came from different populations? (2–3 sentences)
